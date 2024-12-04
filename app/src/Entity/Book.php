@@ -18,7 +18,8 @@ class Book {
     #[ORM\Column(type: "string", length: 255, nullable: false)]
     private $title;
 
-    #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'authors')]
+    #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
+    #[ORM\JoinTable(name: "book_author")]
     private $authors;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]

@@ -18,7 +18,7 @@ class Author{
     #[ORM\Column(type: "string", length: 255, nullable: false)]
     private $fio;
 
-    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'books')]
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'authors')]
     private $books;
 
     #[ORM\Column(type: "integer", nullable: false)]
