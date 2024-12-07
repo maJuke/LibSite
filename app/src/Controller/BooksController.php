@@ -123,8 +123,8 @@ class BooksController extends AbstractController {
             'releasedYear' => $book->getReleasedYear(),
             'imagePath' => $book->getImage(),
             'authors' => array_map(fn($author) => [
-                'id' => $author->getFio(),
-                'fio' => $author->getId()
+                'id' => $author->getId(),
+                'fio' => $author->getFio()
             ], $book->getAuthors()->toArray())
         ]);
     }

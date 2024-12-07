@@ -9,11 +9,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class AuthorRepository extends ServiceEntityRepository {
 
-    private $entityManager;
+    private $em;
     
     public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager) {
         parent::__construct($registry, Author::class);
-        $this->entityManager = $entityManager;
+        $this->em = $entityManager;
     }
 
     public function saveAuthor(array $inputData, BookRepository $bookRepository): Author {
@@ -30,8 +30,8 @@ class AuthorRepository extends ServiceEntityRepository {
             }
         }
 
-        $this->entityManager->persist($author);
-        $this->entityManager->flush();
+        $this->em->persist($author);
+        $this->em->flush();
 
         return $author;
     }

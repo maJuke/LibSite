@@ -9,11 +9,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class BookRepository extends ServiceEntityRepository {
     
-    private $entityManager;
+    private $em;
     
     public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager) {
         parent::__construct($registry, Book::class);
-        $this->entityManager = $entityManager;
+        $this->em = $entityManager;
     }
 
     public function saveBook(array $inputData, AuthorRepository $authorRepository) : Book {
@@ -32,8 +32,8 @@ class BookRepository extends ServiceEntityRepository {
             }
         }
 
-        $this->entityManager->persist($book);
-        $this->entityManager->flush();
+        $this->em->persist($book);
+        $this->em->flush();
         
         return $book;
     }
