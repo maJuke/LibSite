@@ -6,6 +6,7 @@ use App\Repository\AuthorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 
 #[ORM\Entity(repositoryClass:AuthorRepository::class)]
 class Author{
@@ -21,7 +22,7 @@ class Author{
     #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'authors')]
     private $books;
 
-    #[ORM\Column(type: "integer", nullable: false)]
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $amountOfBooks;
 
     public function __construct() {
@@ -61,16 +62,20 @@ class Author{
 
 
     public function addBook(Book $book): self {
+
         if (!$this->books->contains($book)) {
             $this->books[] = $book;
+            $book->addAuthor($this);
         }
-
-        return $this;
+        return $this;;
     }
 
     public function removeBook(Book $book): self {
-        $this->books->removeElement($book);
-
+        
+        if ($this->books->contains($book)) {
+            $this->books->removeElement($book);
+            $book->removeAuthor($this);
+        }
         return $this;
     }
 }

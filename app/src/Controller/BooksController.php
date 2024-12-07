@@ -8,6 +8,7 @@ use App\Repository\AuthorRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Book;
+use App\Repository\BookRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class BooksController extends AbstractController {
@@ -127,5 +128,62 @@ class BooksController extends AbstractController {
                 'fio' => $author->getFio()
             ], $book->getAuthors()->toArray())
         ]);
+    }
+
+    #[Route('books/edit/{id}', name: 'edit_book', methods: ['POST'])]
+    public function editBook(int $id, Request $request, BookRepository $bookRepository): Response {
+
+        $book = $bookRepository->find($id);
+
+        if ($request->getContentType() !== "json") {
+            return new Response(
+                content: "Wrong content type! JSON needed!",
+                status: 400);
+        } else if (!$book) {
+            return new Response(
+                content: "Missing book with id {$id}",
+                status: 404);
+        }
+
+        $inputData = json_decode($request->getContent(), true);
+
+        $bookRepository->editBook($inputData, $book);
+
+        return $this->json([
+            'message' => "Book has been changed!",
+            'book' => [
+                'id' => $book->getId(),
+                'title' => $book->getTitle(),
+                'releasedYear' => $book->getReleasedYear(),
+                'description' => $book->getDescription(),
+                'imagePath' => $book->getImage(),
+                'authors' => array_map(fn($author) => [
+                    'id' => $author->getId(),
+                    'fio' => $author->getFio()
+                ], $book->getAuthors()->toArray())
+            ]
+        ]);
+    }
+
+    #[Route('books/remove/{id}', name: 'remove_book', methods: ['DELETE'])]
+    public function removeBook(int $id): Response {
+        $book = $this
+            ->em
+            ->getRepository(Book::class)
+            ->find($id);
+
+        if (!$book) {
+            return new Response(
+                content: "Missing book with id {$id}",
+                status: 404);
+        }
+
+        $this->em->remove($book);
+        $this->em->flush();
+
+        return new Response(
+            content: "Book with id {$id} has been deleted!",
+            status: 200
+        );
     }
 }

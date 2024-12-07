@@ -88,16 +88,24 @@ class Book {
 
 
     public function addAuthor(Author $author): self {
-        if (!$this->authors->contains($author)) {
-            $this->authors[] = $author;
-        }
 
+        if (!$this->authors->contains($author)) {
+
+            $this->authors[] = $author;
+            $author->addBook($this);
+        }
+    
         return $this;
     }
 
     public function removeAuthor(Author $author): self {
-        $this->authors->removeElement($author);
 
+        if ($this->authors->contains($author)) {
+            
+            $this->authors->removeElement($author);
+            $author->removeBook($this);
+        }
+    
         return $this;
     }
 

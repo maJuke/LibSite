@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Author;
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,5 +37,44 @@ class BookRepository extends ServiceEntityRepository {
         $this->em->flush();
         
         return $book;
+    }
+
+    public function editBook(array $inputData, Book $book): void {
+        
+        if (isset($inputData['title'])) {
+            $book->setTitle($inputData['title']);
+        }
+
+        if (isset($inputData['releasedYear'])) {
+            $book->setReleasedYear($inputData['releasedYear']);
+        }
+
+        if (isset($inputData['description'])) {
+            $book->setDesctiption($inputData['description']);
+        }
+
+        if (isset($inputData['imagePath'])) {
+            $book->setImage($inputData['imagePath']);
+        }
+
+        if (isset($inputData['authors']) && is_array($inputData['authors'])) {
+            
+            $authors = $this
+                ->em
+                ->getRepository(Author::class)
+                ->findBy([
+                    'id' => $inputData['authors']
+                ]);
+            
+            foreach ($book->getAuthors() as $authorExist) {
+                    $book->removeAuthor($authorExist);
+            }
+
+            foreach ($authors as $author) {
+                $book->addAuthor($author);
+            }
+
+        }
+        $this->em->flush();
     }
 }

@@ -21,7 +21,7 @@ class AuthorRepository extends ServiceEntityRepository {
         $author = new Author();
 
         $author->setFio($inputData['fio']);
-        $author->setAmountOfBooks($inputData['amountOfBooks']);
+        $author->setAmountOfBooks(0);
 
         foreach ($inputData['books'] as $bookId) {
             $book = $bookRepository->find($bookId);

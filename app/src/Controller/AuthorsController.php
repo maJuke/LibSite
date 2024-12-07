@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Author;
+use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -90,7 +91,6 @@ class AuthorsController extends AbstractController {
         $inputData = json_decode($request->getContent(), true);
 
         if (!array_key_exists('fio', $inputData)
-            || !array_key_exists('amountOfBooks', $inputData)
             || !array_key_exists('books', $inputData)){
             return new Response(
                 content: "Missing right parameters!",
@@ -99,7 +99,6 @@ class AuthorsController extends AbstractController {
 
         if (!isset
             ($inputData['fio'], 
-                $inputData['amountOfBooks'], 
                 $inputData['books'])) {
             return new Response(
                 content: "Missing non-null values!",
@@ -121,5 +120,22 @@ class AuthorsController extends AbstractController {
                 'releasedYear' => $book->getReleasedYear()
             ], $author->getBooks()->toArray())
         ]);
+    }
+
+    #[Route('authors/edit/{id}', name: 'edit_author', methods: ['POST'])]
+    public function editAuthor(int $id, Request $request, AuthorRepository $authorRepository) {
+
+        $author = $authorRepository->find($id);
+
+        if ($request->getContentType() !== "json") {
+            return new Response(
+                content: "Wrong content type! JSON needed!",
+                status: 400);
+        } else if (!$author) {
+            return new Response(
+                content: "Missing book with id {$id}",
+                status: 404);
+        }
+
     }
 }
