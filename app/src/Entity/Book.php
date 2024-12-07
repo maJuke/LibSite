@@ -22,13 +22,13 @@ class Book {
     #[ORM\JoinTable(name: "book_author")]
     private $authors;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "string", length: 255)]
     private $description;
 
     #[ORM\Column(type: "integer")]
     private $releasedYear;
     
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $imagePath;
 
     public function __construct() {
