@@ -133,9 +133,48 @@ class AuthorsController extends AbstractController {
                 status: 400);
         } else if (!$author) {
             return new Response(
-                content: "Missing book with id {$id}",
+                content: "Missing author with id {$id}",
                 status: 404);
         }
 
+        $inputData = json_decode($request->getContent(), true);
+
+        $authorRepository->editAuthor($inputData, $author);
+
+        return $this->json([
+            'message' => "Author with id {$id} has been changed!",
+            'author' => [
+                'id' => $author->getId(),
+                'fio' => $author->getFio(),
+                'amountOfBooks' => $author->getAmountOfBooks(),
+                'books' => array_map(fn($book) => [
+                    'id' => $book->getId(),
+                    'title' => $book->getTitle(),
+                    'releasedYear' => $book->getReleasedYear()
+                ], $author->getBooks()->toArray())
+            ]
+        ]);
+    }
+
+    #[Route('authors/remove/{id}', name: 'remove_author', methods: ['DELETE'])]
+    public function removeAuthor(int $id): Response {
+        $author = $this
+            ->em
+            ->getRepository(Author::class)
+            ->find($id);
+
+        if (!$author) {
+            return new Response(
+                content: "Missing author with id {$id}",
+                status: 404);
+        }
+
+        $this->em->remove($author);
+        $this->em->flush();
+
+        return new Response(
+            content: "Author with id {$id} has been deleted!",
+            status: 200
+        );
     }
 }

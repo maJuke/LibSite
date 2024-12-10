@@ -150,7 +150,7 @@ class BooksController extends AbstractController {
         $bookRepository->editBook($inputData, $book);
 
         return $this->json([
-            'message' => "Book has been changed!",
+            'message' => "Book with id {$id} has been changed!",
             'book' => [
                 'id' => $book->getId(),
                 'title' => $book->getTitle(),

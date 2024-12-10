@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Book;
 use App\Entity\Author; 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,5 +35,31 @@ class AuthorRepository extends ServiceEntityRepository {
         $this->em->flush();
 
         return $author;
+    }
+
+    public function editAuthor(array $inputData, Author $author): void {
+
+        if (isset($inputData['fio'])) {
+            $author->setFio($inputData['fio']);
+        } 
+
+        if (isset($inputData['books']) && is_array($inputData['books'])) {
+            
+            $books = $this
+                ->em
+                ->getRepository(Book::class)
+                ->findBy([
+                    'id' => $inputData['books']
+                ]);
+
+            foreach ($author->getBooks() as $bookExists) {
+                $author->removeBook($bookExists);
+            }
+
+            foreach ($books as $book) {
+                $author->addBook($book);
+            }
+        }
+        $this->em->flush();
     }
 }
