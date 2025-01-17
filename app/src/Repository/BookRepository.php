@@ -78,7 +78,7 @@ class BookRepository extends ServiceEntityRepository {
         $this->em->flush();
     }
 
-    public function FindBookWithFilters($authorCount, $yearFilter) : array {
+    public function findBookWithFilters($authorCount, $yearFilter) : array {
 
         $queryBuilder = $this->createQueryBuilder('a')
             ->leftJoin('a.authors', 'b')

@@ -20,12 +20,14 @@ class AuthorsController extends AbstractController {
     }
     
     #[Route('/authors', name: 'authors', methods: 'GET')]
-    public function allAuthors(): Response {
+    public function allAuthors(Request $request): Response {
+
+        $bookCounter = $request->query->get('bookCounter');
 
         $authors = $this
             ->em
             ->getRepository(Author::class)
-            ->findAll();
+            ->findAuthorsWithFilters($bookCounter);
 
         if (!$authors) {
             return new Response(

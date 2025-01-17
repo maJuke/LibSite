@@ -62,4 +62,15 @@ class AuthorRepository extends ServiceEntityRepository {
         }
         $this->em->flush();
     }
+
+    public function findAuthorsWithFilters($bookCounter) : array {
+        $queryBuilder = $this->createQueryBuilder('a');
+
+        if ($bookCounter !== null) {
+            $queryBuilder->where('a.amountOfBooks = :bookCounter')
+            ->setParameter('bookCounter', $bookCounter);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

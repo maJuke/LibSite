@@ -28,7 +28,7 @@ class BooksController extends AbstractController {
         $books = $this
             ->em
             ->getRepository(Book::class)
-            ->FindBookWithFilters($authorCount, $yearFilter);
+            ->findBookWithFilters($authorCount, $yearFilter);
 
         if (!$books) {
             return new Response(
