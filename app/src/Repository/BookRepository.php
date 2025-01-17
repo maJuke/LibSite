@@ -77,4 +77,22 @@ class BookRepository extends ServiceEntityRepository {
         }
         $this->em->flush();
     }
+
+    public function FindBookWithFilters($authorCount, $yearFilter) : array {
+
+        $queryBuilder = $this->createQueryBuilder('a')
+            ->leftJoin('a.authors', 'b')
+            ->groupBy('a.id');
+
+        if ($authorCount !== null) {
+            $queryBuilder->having('COUNT(b.id) = :authorCount')
+                ->setParameter('authorCount', $authorCount);
+            }
+
+        if ($yearFilter !== null) {
+            $queryBuilder->andWhere('a.releasedYear = :yearFilter')
+                ->setParameter('yearFilter', $yearFilter);
+        }
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

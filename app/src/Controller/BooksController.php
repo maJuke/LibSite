@@ -20,12 +20,15 @@ class BooksController extends AbstractController {
     }
     
     #[Route('/books', name: 'books', methods: 'GET')]
-    public function allBooks(): Response {
+    public function allBooks(Request $request): Response {
+
+        $authorCount = $request->query->get('authorCount');
+        $yearFilter = $request->query->get('yearFilter');
 
         $books = $this
             ->em
             ->getRepository(Book::class)
-            ->findAll();
+            ->FindBookWithFilters($authorCount, $yearFilter);
 
         if (!$books) {
             return new Response(
