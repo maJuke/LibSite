@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Author;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AuthorsController extends AbstractController {
     
-    private $em;
+    private $authorRepository;
+    private $bookRepository;
 
-    public function __construct(EntityManagerInterface $em) {
-        $this->em = $em;
+    public function __construct(AuthorRepository $authorRepository, BookRepository $bookRepository) {
+        $this->authorRepository = $authorRepository;
+        $this->bookRepository = $bookRepository;
     }
     
     #[Route('/authors', name: 'authors', methods: 'GET')]
@@ -25,8 +26,7 @@ class AuthorsController extends AbstractController {
         $bookCounter = $request->query->get('bookCounter');
 
         $authors = $this
-            ->em
-            ->getRepository(Author::class)
+            ->authorRepository
             ->findAuthorsWithFilters($bookCounter);
 
         if (!$authors) {
@@ -58,8 +58,7 @@ class AuthorsController extends AbstractController {
     public function exactAuthor(int $id): Response {
 
         $author = $this
-            ->em
-            ->getRepository(Author::class)
+            ->authorRepository
             ->find($id);
 
         if (!$author) {
@@ -108,8 +107,7 @@ class AuthorsController extends AbstractController {
         }
 
         $author = $this
-            ->em
-            ->getRepository(Author::class)
+            ->authorRepository
             ->saveAuthor($inputData, $bookRepository);
 
         return $this->json([
@@ -159,10 +157,9 @@ class AuthorsController extends AbstractController {
     }
 
     #[Route('authors/remove/{id}', name: 'remove_author', methods: ['DELETE'])]
-    public function removeAuthor(int $id): Response {
+    public function removeAuthor(int $id, EntityManagerInterface $em ): Response {
         $author = $this
-            ->em
-            ->getRepository(Author::class)
+            ->authorRepository
             ->find($id);
 
         if (!$author) {
@@ -171,8 +168,8 @@ class AuthorsController extends AbstractController {
                 status: 404);
         }
 
-        $this->em->remove($author);
-        $this->em->flush();
+        $em->remove($author);
+        $em->flush();
 
         return new Response(
             content: "Author with id {$id} has been deleted!",

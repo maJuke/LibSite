@@ -7,16 +7,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\AuthorRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Book;
 use App\Repository\BookRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class BooksController extends AbstractController {
 
-    private $em;
+    private $authorRepository;
+    private $bookRepository;
 
-    public function __construct(EntityManagerInterface $em) {
-        $this->em = $em;
+    public function __construct(AuthorRepository $authorRepository, BookRepository $bookRepository) {
+        $this->authorRepository = $authorRepository;
+        $this->bookRepository = $bookRepository;
     }
     
     #[Route('/books', name: 'books', methods: 'GET')]
@@ -27,8 +28,7 @@ class BooksController extends AbstractController {
         $moreThanTwoAuthors = $request->query->get('moreThanTwoAuthors');
 
         $books = $this
-            ->em
-            ->getRepository(Book::class)
+            ->bookRepository
             ->findBookWithFilters($authorCount, $yearFilter, $moreThanTwoAuthors);
 
         if (!$books) {
@@ -61,8 +61,7 @@ class BooksController extends AbstractController {
     public function exactBook(int $id): Response {
 
         $book = $this
-            ->em
-            ->getRepository(Book::class)
+            ->bookRepository
             ->find($id);
 
         if (!$book) {
@@ -116,8 +115,7 @@ class BooksController extends AbstractController {
         }
 
         $book = $this
-            ->em
-            ->getRepository(Book::class)
+            ->bookRepository
             ->saveBook($inputData, $authorRepository);
 
 
@@ -170,10 +168,9 @@ class BooksController extends AbstractController {
     }
 
     #[Route('books/remove/{id}', name: 'remove_book', methods: ['DELETE'])]
-    public function removeBook(int $id): Response {
+    public function removeBook(int $id, EntityManagerInterface $em): Response {
         $book = $this
-            ->em
-            ->getRepository(Book::class)
+            ->bookRepository
             ->find($id);
 
         if (!$book) {
@@ -182,8 +179,8 @@ class BooksController extends AbstractController {
                 status: 404);
         }
 
-        $this->em->remove($book);
-        $this->em->flush();
+        $em->remove($book);
+        $em->flush();
 
         return new Response(
             content: "Book with id {$id} has been deleted!",
