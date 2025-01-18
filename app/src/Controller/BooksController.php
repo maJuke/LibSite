@@ -24,11 +24,12 @@ class BooksController extends AbstractController {
 
         $authorCount = $request->query->get('authorCount');
         $yearFilter = $request->query->get('yearFilter');
+        $moreThanTwoAuthors = $request->query->get('moreThanTwoAuthors');
 
         $books = $this
             ->em
             ->getRepository(Book::class)
-            ->findBookWithFilters($authorCount, $yearFilter);
+            ->findBookWithFilters($authorCount, $yearFilter, $moreThanTwoAuthors);
 
         if (!$books) {
             return new Response(

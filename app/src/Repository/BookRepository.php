@@ -78,7 +78,7 @@ class BookRepository extends ServiceEntityRepository {
         $this->em->flush();
     }
 
-    public function findBookWithFilters($authorCount, $yearFilter) : array {
+    public function findBookWithFilters($authorCount, $yearFilter, $moreThanTwoAuthors) : array {
 
         $queryBuilder = $this->createQueryBuilder('a')
             ->leftJoin('a.authors', 'b')
@@ -87,11 +87,15 @@ class BookRepository extends ServiceEntityRepository {
         if ($authorCount !== null) {
             $queryBuilder->having('COUNT(b.id) = :authorCount')
                 ->setParameter('authorCount', $authorCount);
-            }
+        }
 
         if ($yearFilter !== null) {
             $queryBuilder->andWhere('a.releasedYear = :yearFilter')
                 ->setParameter('yearFilter', $yearFilter);
+        }
+
+        if ($moreThanTwoAuthors == 'true') {
+            $queryBuilder->having('COUNT(b.id) > 2');
         }
         return $queryBuilder->getQuery()->getResult();
     }
