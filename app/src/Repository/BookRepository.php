@@ -99,4 +99,29 @@ class BookRepository extends ServiceEntityRepository {
         }
         return $queryBuilder->getQuery()->getResult();
     }
+
+    function saveBookWithAuthors(array $inputData) : Book {
+        $book = new Book();
+
+        $book->setTitle($inputData['title']);
+        $book->setDesctiption($inputData['description']);
+        $book->setReleasedYear($inputData['releasedYear']);
+        $book->setImage($inputData['imagePath']);
+
+        foreach ($inputData['fio'] as $authorsfio) {
+            $author = new Author();
+            $book->addAuthor($author);
+            $author->setFio($authorsfio);
+            $author->setAmountOfBooks(1);
+            $author->addBook($book);
+            $this->em->persist($author);
+        }
+
+        $this->em->persist($book);
+        
+
+        $this->em->flush();
+
+        return $book;
+    }
 }
