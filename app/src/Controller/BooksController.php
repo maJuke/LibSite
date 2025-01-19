@@ -187,4 +187,68 @@ class BooksController extends AbstractController {
             status: 200
         );
     }
+
+    #[Route('/bookWithAuthors', name: 'create_book_with_authors', methods: ['POST'])]
+    public function createBookWithAuthors(Request $request): Response
+    {
+        if ($request->getContentType() !== "json") {
+            return new Response(
+                content: "Wrong content type! JSON needed!",
+                status: 400);
+        }
+
+        $inputData = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('title', $inputData)
+            || !array_key_exists('description', $inputData)
+            || !array_key_exists('releasedYear', $inputData)
+            || !array_key_exists('imagePath', $inputData)
+            || !array_key_exists('fio', $inputData)){
+            return new Response(
+                content: "Missing right parameters!",
+                status: 400);
+        }
+
+        if (!isset
+            ($inputData['title'], 
+                $inputData['releasedYear'], 
+                $inputData['description'], 
+                $inputData['fio'])) {
+            return new Response(
+                content: "Missing non-null values!",
+                status: 400);
+        }
+
+        if (!is_array($inputData['fio'])) {
+            return new Response(
+                content: "fio should be an array!",
+                status: 400
+            );
+        }
+
+        $bookWithAuthors = $this
+            ->bookRepository
+            ->saveBookWithAuthors($inputData);
+
+        return $this->json([
+                'message' => "Book with id {$bookWithAuthors->getId()}" 
+                . " and authors with ids: "
+                .implode(", "
+                    , array_map(fn($author) =>
+                        $author->getId()
+                    , $bookWithAuthors->getAuthors()->toArray()))
+                . " have been created!",
+                'book' => [
+                'id' => $bookWithAuthors->getId(),
+                'title' => $bookWithAuthors->getTitle(),
+                'releasedYear' => $bookWithAuthors->getReleasedYear(),
+                'description' => $bookWithAuthors->getDescription(),
+                'imagePath' => $bookWithAuthors->getImage(),
+                'authors' => array_map(fn($author) => [
+                    'id' => $author->getId(),
+                    'fio' => $author->getFio()
+                ], $bookWithAuthors->getAuthors()->toArray())
+            ]
+        ]);
+    }
 }
